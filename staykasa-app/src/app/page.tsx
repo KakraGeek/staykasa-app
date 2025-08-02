@@ -133,10 +133,10 @@ export default function Home() {
     "@type": "WebSite",
     "name": "StayKasa",
     "description": "Ghana's premier short-let and vacation rental platform",
-    "url": "https://staykasa.com",
+    "url": "https://staykasa-app.vercel.app",
     "potentialAction": {
       "@type": "SearchAction",
-      "target": "https://staykasa.com/search?q={search_term_string}",
+      "target": "https://staykasa-app.vercel.app/search?q={search_term_string}",
       "query-input": "required name=search_term_string"
     },
     "sameAs": [
@@ -150,8 +150,8 @@ export default function Home() {
     "@context": "https://schema.org",
     "@type": "Organization",
     "name": "StayKasa",
-    "url": "https://staykasa.com",
-    "logo": "https://staykasa.com/Images/logo.webp",
+    "url": "https://staykasa-app.vercel.app",
+    "logo": "https://staykasa-app.vercel.app/Images/logo.webp",
     "description": "Ghana's premier vacation rental platform",
     "address": {
       "@type": "PostalAddress",
@@ -184,8 +184,8 @@ export default function Home() {
         <meta property="og:title" content="StayKasa - Ghana's Premier Short-Let & Vacation Rental Platform" />
         <meta property="og:description" content="Book Ghana's finest vacation rentals directly. Support for Mobile Money, VISA, Mastercard. Verified properties in Accra, Kumasi & beyond." />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://staykasa.com" />
-        <meta property="og:image" content="https://staykasa.com/Images/logo.webp" />
+        <meta property="og:url" content="https://staykasa-app.vercel.app" />
+        <meta property="og:image" content="https://staykasa-app.vercel.app/Images/logo.webp" />
         <meta property="og:site_name" content="StayKasa" />
         <meta property="og:locale" content="en_US" />
         
@@ -193,7 +193,7 @@ export default function Home() {
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="StayKasa - Ghana Vacation Rental Platform" />
         <meta name="twitter:description" content="Book Ghana's finest vacation rentals directly with local payment support" />
-        <meta name="twitter:image" content="https://staykasa.com/Images/logo.webp" />
+        <meta name="twitter:image" content="https://staykasa-app.vercel.app/Images/logo.webp" />
         
         {/* Structured Data */}
         <script

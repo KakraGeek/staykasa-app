@@ -99,7 +99,7 @@ export default function SearchPage() {
     "@type": "ItemList",
     "name": "Ghana Vacation Rentals",
     "description": "Search and book vacation rentals in Ghana",
-    "url": "https://staykasa.com/search",
+          "url": "https://staykasa-app.vercel.app/search",
     "numberOfItems": filteredProperties.length,
     "itemListElement": filteredProperties.map((property, index) => ({
       "@type": "ListItem",

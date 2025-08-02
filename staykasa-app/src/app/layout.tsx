@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     "Accra short let booking",
     "Ghana hospitality platform"
   ].join(", "),
-  authors: [{ name: "StayKasa Team", url: "https://staykasa.com" }],
+  authors: [{ name: "StayKasa Team", url: "https://staykasa-app.vercel.app" }],
   creator: "StayKasa",
   publisher: "StayKasa",
   formatDetection: {
@@ -37,14 +37,14 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
-  metadataBase: new URL('https://staykasa.com'),
+  metadataBase: new URL('https://staykasa-app.vercel.app'),
   alternates: {
     canonical: '/',
   },
   openGraph: {
     title: "StayKasa - Ghana's Premier Short-Let & Vacation Rental Platform",
     description: "Book Ghana's finest vacation rentals directly. Support for Mobile Money, VISA, Mastercard. Verified properties in Accra, Kumasi & beyond. Instant booking, local expertise.",
-    url: 'https://staykasa.com',
+    url: 'https://staykasa-app.vercel.app',
     siteName: 'StayKasa',
     images: [
       {
@@ -96,7 +96,7 @@ export const metadata: Metadata = {
     'DC.date': '2024',
     'DC.type': 'Service',
     'DC.format': 'text/html',
-    'DC.identifier': 'https://staykasa.com',
+    'DC.identifier': 'https://staykasa-app.vercel.app',
     'DC.language': 'en',
     'DC.coverage': 'Ghana',
     'DC.rights': 'Copyright 2024 StayKasa',
