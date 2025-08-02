@@ -40,14 +40,10 @@ export function PropertyCard({
       <div className="relative h-64">
         <div className="absolute inset-4">
           {imagePath ? (
-            <Image
+            <img
               src={imagePath}
               alt={title}
-              fill
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              quality={95}
-              priority={true}
-              className="object-cover group-hover:scale-105 transition-transform duration-300 rounded-lg"
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 rounded-lg"
             />
           ) : (
             <PropertyPlaceholder type={placeholderType} className="h-full rounded-lg" />

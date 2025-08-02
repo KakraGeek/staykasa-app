@@ -298,30 +298,22 @@ export default function Home() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {(() => {
-              console.log('Rendering properties:', featuredProperties);
-              return null;
-            })()}
-            {featuredProperties?.map((property) => {
-              console.log('Property:', property);
-              console.log('Image path:', property.images && property.images.length > 0 ? property.images[0].url : '');
-              return (
-                <PropertyCard
-                  key={property.id}
-                  id={property.id}
-                  title={property.title}
-                  location={property.location}
-                  price={`₵${property.price.toLocaleString()}/night`}
-                  guests={property.maxGuests}
-                  bedrooms={property.bedrooms}
-                  baths={property.baths}
-                  rating={property.rating}
-                  badge={{ text: "Featured", variant: "default" }}
-                  imagePath={property.images && property.images.length > 0 ? property.images[0].url : ''}
-                  placeholderType="default"
-                />
-              );
-            })}
+            {featuredProperties?.map((property) => (
+              <PropertyCard
+                key={property.id}
+                id={property.id}
+                title={property.title}
+                location={property.location}
+                price={`₵${property.price.toLocaleString()}/night`}
+                guests={property.maxGuests}
+                bedrooms={property.bedrooms}
+                baths={property.baths}
+                rating={property.rating}
+                badge={{ text: "Featured", variant: "default" }}
+                imagePath={property.images && property.images.length > 0 ? property.images[0].url : ''}
+                placeholderType="default"
+              />
+            ))}
           </div>
         )}
 
