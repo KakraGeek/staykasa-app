@@ -219,8 +219,8 @@ export default function Home() {
           </p>
           
           {/* Search Bar */}
-          <div className="max-w-4xl mx-auto mb-12">
-            <div className="flex flex-col md:flex-row gap-4 p-6 bg-gradient-to-r from-primary/10 via-secondary/5 to-accent/10 backdrop-blur-sm rounded-2xl shadow-xl border border-primary/20">
+          <div className="max-w-4xl mx-auto mb-12 px-2">
+            <div className="flex flex-col gap-4 p-4 md:p-6 bg-gradient-to-r from-primary/10 via-secondary/5 to-accent/10 backdrop-blur-sm rounded-2xl shadow-xl border border-primary/20">
               <div className="flex flex-col flex-1">
                 <label className="text-xs font-medium text-[#133736] mb-1">Location</label>
                 <div className="relative">
@@ -232,28 +232,30 @@ export default function Home() {
                   />
                 </div>
               </div>
-              <div className="flex gap-2">
-                <div className="flex flex-col">
+              
+              {/* Mobile: Stack vertically, Desktop: Row layout */}
+              <div className="flex flex-col md:flex-row gap-2 md:gap-2">
+                <div className="flex flex-col flex-1">
                   <label className="text-xs font-medium text-[#133736] mb-1">Start date</label>
                   <div className="relative">
                     <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={20} />
                     <input
                       type="date"
-                      className="pl-10 pr-4 py-3 border border-primary/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-background/50 min-w-[140px]"
+                      className="w-full pl-10 pr-4 py-3 border border-primary/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-background/50"
                     />
                   </div>
                 </div>
-                <div className="flex flex-col">
+                <div className="flex flex-col flex-1">
                   <label className="text-xs font-medium text-[#133736] mb-1">End date</label>
                   <div className="relative">
                     <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={20} />
                     <input
                       type="date"
-                      className="pl-10 pr-4 py-3 border border-primary/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-background/50 min-w-[140px]"
+                      className="w-full pl-10 pr-4 py-3 border border-primary/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-background/50"
                     />
                   </div>
                 </div>
-                <div className="flex flex-col">
+                <div className="flex flex-col flex-1">
                   <label className="text-xs font-medium text-[#133736] mb-1">Guests</label>
                   <div className="relative">
                     <Users className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={20} />
@@ -262,16 +264,18 @@ export default function Home() {
                       placeholder="Guests"
                       min="1"
                       max="20"
-                      className="pl-10 pr-4 py-3 border border-primary/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-background/50 w-24"
+                      className="w-full pl-10 pr-4 py-3 border border-primary/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-background/50"
                     />
                   </div>
                 </div>
-                <div className="flex flex-col justify-end">
-                  <Button className="px-8 bg-[#03c3d7] hover:bg-[#00abbc] text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300 h-[42px]">
-                    <Search className="mr-2" size={20} />
-                    Search
-                  </Button>
-                </div>
+              </div>
+              
+              {/* Search Button - Full width on mobile */}
+              <div className="flex flex-col justify-end">
+                <Button className="w-full md:w-auto px-8 bg-[#03c3d7] hover:bg-[#00abbc] text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300 h-[42px]">
+                  <Search className="mr-2" size={20} />
+                  Search
+                </Button>
               </div>
             </div>
           </div>

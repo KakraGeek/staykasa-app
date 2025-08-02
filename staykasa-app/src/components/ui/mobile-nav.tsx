@@ -29,7 +29,7 @@ export function MobileNav() {
           <Menu className="h-6 w-6 text-primary" />
         </Button>
       </SheetTrigger>
-      <SheetContent side="right" className="w-[320px] sm:w-[380px] bg-background border-l border-primary/20">
+      <SheetContent side="right" className="w-[85vw] max-w-[320px] sm:max-w-[380px] bg-background border-l border-primary/20 h-full overflow-y-auto">
         <SheetHeader className="text-left pb-6 border-b border-primary/10">
           <div className="flex items-center space-x-3">
             <Image
@@ -44,7 +44,7 @@ export function MobileNav() {
           <p className="text-sm text-muted-foreground mt-2">Your trusted short-stay platform</p>
         </SheetHeader>
         
-        <div className="flex flex-col space-y-1 mt-6 mx-2">
+        <div className="flex flex-col space-y-1 mt-4 mx-2">
           {menuItems.map((item) => (
             item.href.startsWith('/') ? (
               <Link 
@@ -74,7 +74,7 @@ export function MobileNav() {
           ))}
         </div>
 
-        <div className="mt-6 pt-4 border-t border-primary/10 space-y-2 bg-white/30 p-4 rounded-lg mx-2">
+        <div className="mt-4 pt-3 border-t border-primary/10 space-y-2 bg-white/30 p-3 rounded-lg mx-2">
           <div className="text-sm text-muted-foreground mb-4">
             <p className="font-medium text-foreground mb-1">Quick Actions</p>
             <p>Access your account or start booking</p>
@@ -188,7 +188,7 @@ export function MobileNav() {
           </Link>
         </div>
 
-        <div className="mt-auto pt-4 border-t border-primary/10 bg-white/30 p-3 rounded-lg mx-2 mb-2">
+        <div className="mt-auto pt-3 border-t border-primary/10 bg-white/30 p-2 rounded-lg mx-2 mb-2">
           <div className="text-xs text-muted-foreground text-center">
             <p>© 2024 StayKasa</p>
             <p className="mt-1">Ghana's trusted short-stay platform</p>
