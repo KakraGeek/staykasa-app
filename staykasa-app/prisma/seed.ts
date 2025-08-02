@@ -6,8 +6,9 @@ const prisma = new PrismaClient();
 async function main() {
   console.log('🌱 Starting database seed...');
 
-  // Create admin user
+  // Create admin users
   const adminPassword = await hashPassword('admin123');
+  
   const admin = await prisma.user.upsert({
     where: { email: 'admin@staykasa.com' },
     update: {},
@@ -21,7 +22,33 @@ async function main() {
     },
   });
 
-  // Create host user
+  const adminDesmond = await prisma.user.upsert({
+    where: { email: 'desmond.asiedu@gmail.com' },
+    update: {},
+    create: {
+      email: 'desmond.asiedu@gmail.com',
+      password: adminPassword,
+      firstName: 'Desmond',
+      lastName: 'Asiedu',
+      role: 'ADMIN',
+      isVerified: true,
+    },
+  });
+
+  const adminEtty = await prisma.user.upsert({
+    where: { email: 'ettyansah@gmail.com' },
+    update: {},
+    create: {
+      email: 'ettyansah@gmail.com',
+      password: adminPassword,
+      firstName: 'Etty',
+      lastName: 'Ansah',
+      role: 'ADMIN',
+      isVerified: true,
+    },
+  });
+
+  // Create host users
   const hostPassword = await hashPassword('host123');
   const host = await prisma.user.upsert({
     where: { email: 'host@staykasa.com' },
@@ -36,7 +63,20 @@ async function main() {
     },
   });
 
-  // Create guest user
+  const demoHost = await prisma.user.upsert({
+    where: { email: 'demo.host@staykasa.com' },
+    update: {},
+    create: {
+      email: 'demo.host@staykasa.com',
+      password: hostPassword,
+      firstName: 'Demo',
+      lastName: 'Host',
+      role: 'HOST',
+      isVerified: true,
+    },
+  });
+
+  // Create guest users
   const guestPassword = await hashPassword('guest123');
   const guest = await prisma.user.upsert({
     where: { email: 'guest@staykasa.com' },
@@ -45,6 +85,19 @@ async function main() {
       email: 'guest@staykasa.com',
       password: guestPassword,
       firstName: 'Sarah',
+      lastName: 'Guest',
+      role: 'GUEST',
+      isVerified: true,
+    },
+  });
+
+  const demoGuest = await prisma.user.upsert({
+    where: { email: 'demo.guest@staykasa.com' },
+    update: {},
+    create: {
+      email: 'demo.guest@staykasa.com',
+      password: guestPassword,
+      firstName: 'Demo',
       lastName: 'Guest',
       role: 'GUEST',
       isVerified: true,
@@ -188,8 +241,12 @@ async function main() {
   console.log('✅ Database seeded successfully!');
   console.log('👥 Users created:');
   console.log(`   Admin: admin@staykasa.com / admin123`);
+  console.log(`   Admin: desmond.asiedu@gmail.com / admin123`);
+  console.log(`   Admin: ettyansah@gmail.com / admin123`);
   console.log(`   Host: host@staykasa.com / host123`);
+  console.log(`   Host: demo.host@staykasa.com / host123`);
   console.log(`   Guest: guest@staykasa.com / guest123`);
+  console.log(`   Guest: demo.guest@staykasa.com / guest123`);
   console.log('🏠 Properties created:', properties.length);
 }
 
