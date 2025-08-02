@@ -1,0 +1,252 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./prisma/dev.db"
+}
+
+// User model for guests, hosts, and admins
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  firstName String
+  lastName  String
+  phone     String?
+  role      UserRole @default(GUEST)
+  avatar    String?
+  isVerified Boolean @default(false)
+  resetToken String?
+  resetTokenExpiry DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  properties Property[]    @relation("PropertyOwner")
+  bookings   Booking[]     @relation("GuestBookings")
+  reviews    Review[]
+  payments   Payment[]
+  messages   Message[]     @relation("UserMessages")
+  notifications Notification[]
+
+  @@map("users")
+}
+
+// Property model for vacation rentals
+model Property {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  location    String
+  address     String
+  city        String
+  country     String   @default("Ghana")
+  latitude    Float?
+  longitude   Float?
+  price       Float
+  maxGuests   Int
+  bedrooms    Int
+  baths       Int
+  amenities   String // JSON string of amenities array
+  isActive    Boolean  @default(true)
+  isFeatured  Boolean  @default(false)
+  rating      Float    @default(0)
+  reviewCount Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  ownerId     String
+  owner       User       @relation("PropertyOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  bookings    Booking[]
+  reviews     Review[]
+  images      PropertyImage[]
+
+  @@map("properties")
+}
+
+// Property images for better organization
+model PropertyImage {
+  id         String   @id @default(cuid())
+  url        String
+  alt        String?
+  isPrimary  Boolean  @default(false)
+  order      Int      @default(0)
+  createdAt  DateTime @default(now())
+
+  // Relations
+  propertyId String
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@map("property_images")
+}
+
+// Booking model for reservations
+model Booking {
+  id          String        @id @default(cuid())
+  checkIn     DateTime
+  checkOut    DateTime
+  guests      Int
+  totalPrice  Float
+  status      BookingStatus @default(PENDING)
+  specialRequests String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  // Relations
+  guestId     String
+  guest       User          @relation("GuestBookings", fields: [guestId], references: [id], onDelete: Cascade)
+  propertyId  String
+  property    Property      @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  payments    Payment[]
+  messages    Message[]     @relation("BookingMessages")
+
+  @@map("bookings")
+}
+
+// Payment model for transactions
+model Payment {
+  id            String        @id @default(cuid())
+  amount        Float
+  currency      String        @default("GHS")
+  method        PaymentMethod
+  status        PaymentStatus @default(PENDING)
+  transactionId String?       @unique
+  reference     String?       @unique
+  metadata      Json?         // For payment provider specific data
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  // Relations
+  userId        String
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bookingId     String
+  booking       Booking       @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  @@map("payments")
+}
+
+// Review model for property ratings
+model Review {
+  id        String   @id @default(cuid())
+  rating    Int      // 1-5 stars
+  comment   String?
+  isPublic  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  propertyId String
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, propertyId]) // One review per user per property
+  @@map("reviews")
+}
+
+// Message model for communication
+model Message {
+  id        String   @id @default(cuid())
+  content   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  // Relations
+  senderId  String
+  sender    User     @relation("UserMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  bookingId String?
+  booking   Booking? @relation("BookingMessages", fields: [bookingId], references: [id], onDelete: Cascade)
+
+  @@map("messages")
+}
+
+// Notification model for user notifications
+model Notification {
+  id        String           @id @default(cuid())
+  title     String
+  message   String
+  type      NotificationType
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  // Relations
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+// Host Application model for host onboarding
+model HostApplication {
+  id           String              @id @default(cuid())
+  firstName    String
+  lastName     String
+  email        String
+  phone        String
+  businessName String
+  businessType String
+  experience   String
+  properties   Int
+  reason       String
+  status       ApplicationStatus   @default(PENDING)
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+
+  @@map("host_applications")
+}
+
+// Enums
+enum UserRole {
+  GUEST
+  HOST
+  ADMIN
+  CLEANER
+}
+
+enum BookingStatus {
+  PENDING
+  PENDING_PAYMENT
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+  REFUNDED
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  PAYSTACK
+  MOBILE_MONEY_MTN
+  MOBILE_MONEY_VODAFONE
+  MOBILE_MONEY_AIRTELTIGO
+  CREDIT_CARD
+  DEBIT_CARD
+  BANK_TRANSFER
+}
+
+enum NotificationType {
+  BOOKING_CONFIRMED
+  BOOKING_CANCELLED
+  PAYMENT_RECEIVED
+  REVIEW_RECEIVED
+  MESSAGE_RECEIVED
+  HOST_APPLICATION
+}
+
+enum ApplicationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
