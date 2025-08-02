@@ -35,8 +35,9 @@ export default function Home() {
         console.log('Database not connected, using fallback data');
       }
       
+      console.log('Using fallback data for properties');
       // Silently fallback to mock data if API fails (no error toast)
-      setFeaturedProperties([
+      const fallbackData = [
         {
           id: "1",
           title: "Luxury Villa in Accra",
@@ -103,7 +104,9 @@ export default function Home() {
           createdAt: "2024-01-01",
           updatedAt: "2024-01-01"
         }
-      ]);
+      ];
+      console.log('Fallback data:', fallbackData);
+      setFeaturedProperties(fallbackData);
     } finally {
       setLoading(false);
     }
@@ -295,22 +298,30 @@ export default function Home() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {featuredProperties?.map((property) => (
-              <PropertyCard
-                key={property.id}
-                id={property.id}
-                title={property.title}
-                location={property.location}
-                price={`₵${property.price.toLocaleString()}/night`}
-                guests={property.maxGuests}
-                bedrooms={property.bedrooms}
-                baths={property.baths}
-                rating={property.rating}
-                badge={{ text: "Featured", variant: "default" }}
-                imagePath={property.images[0]?.url || ''}
-                placeholderType="default"
-              />
-            ))}
+            {(() => {
+              console.log('Rendering properties:', featuredProperties);
+              return null;
+            })()}
+            {featuredProperties?.map((property) => {
+              console.log('Property:', property);
+              console.log('Image path:', property.images && property.images.length > 0 ? property.images[0].url : '');
+              return (
+                <PropertyCard
+                  key={property.id}
+                  id={property.id}
+                  title={property.title}
+                  location={property.location}
+                  price={`₵${property.price.toLocaleString()}/night`}
+                  guests={property.maxGuests}
+                  bedrooms={property.bedrooms}
+                  baths={property.baths}
+                  rating={property.rating}
+                  badge={{ text: "Featured", variant: "default" }}
+                  imagePath={property.images && property.images.length > 0 ? property.images[0].url : ''}
+                  placeholderType="default"
+                />
+              );
+            })}
           </div>
         )}
 
