@@ -23,16 +23,23 @@ export default function Home() {
   const loadFeaturedProperties = async () => {
     try {
       setLoading(true);
+      // Set a timeout for the API call to prevent hanging
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('API_TIMEOUT')), 3000)
+      );
+      
       // Load all properties instead of just featured ones to show all available properties
-      const properties = await propertyApi.getProperties();
+      const propertiesPromise = propertyApi.getProperties();
+      const properties = await Promise.race([propertiesPromise, timeoutPromise]) as Property[];
+      
       console.log('API returned properties:', properties);
       setFeaturedProperties(properties || []);
     } catch (error) {
       console.error('Failed to load properties:', error);
       
-      // Check if it's a database connection error
-      if (error instanceof Error && error.message === 'DATABASE_CONNECTION_FAILED') {
-        console.log('Database not connected, using fallback data');
+      // Check if it's a database connection error or timeout
+      if (error instanceof Error && (error.message === 'DATABASE_CONNECTION_FAILED' || error.message === 'API_TIMEOUT')) {
+        console.log('Database not connected or API timeout, using fallback data');
       }
       
       console.log('Using fallback data for properties');
