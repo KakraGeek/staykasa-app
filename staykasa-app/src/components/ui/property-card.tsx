@@ -40,17 +40,18 @@ export function PropertyCard({
       <div className="relative h-64">
         <div className="absolute inset-4">
           {imagePath ? (
-            <img
+            <Image
               src={imagePath}
               alt={title}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 rounded-lg"
+              fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              quality={95}
+              priority={true}
+              className="object-cover group-hover:scale-105 transition-transform duration-300 rounded-lg"
               onLoad={() => console.log('✅ Image loaded successfully:', imagePath)}
               onError={(e) => {
                 console.error('❌ Image failed to load:', imagePath);
                 console.error('Error details:', e);
-                // Try to load a fallback image
-                const img = e.target as HTMLImageElement;
-                img.src = 'https://via.placeholder.com/400x300/cccccc/666666?text=Image+Not+Found';
               }}
             />
           ) : (
