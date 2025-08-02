@@ -33,13 +33,20 @@ export default function Home() {
       const properties = await Promise.race([propertiesPromise, timeoutPromise]) as Property[];
       
       console.log('API returned properties:', properties);
-      setFeaturedProperties(properties || []);
+      
+      // If API returns empty array or no properties, use fallback data
+      if (!properties || properties.length === 0) {
+        console.log('API returned empty array, using fallback data');
+        throw new Error('EMPTY_API_RESPONSE');
+      }
+      
+      setFeaturedProperties(properties);
     } catch (error) {
       console.error('Failed to load properties:', error);
       
-      // Check if it's a database connection error or timeout
-      if (error instanceof Error && (error.message === 'DATABASE_CONNECTION_FAILED' || error.message === 'API_TIMEOUT')) {
-        console.log('Database not connected or API timeout, using fallback data');
+      // Check if it's a database connection error, timeout, or empty response
+      if (error instanceof Error && (error.message === 'DATABASE_CONNECTION_FAILED' || error.message === 'API_TIMEOUT' || error.message === 'EMPTY_API_RESPONSE')) {
+        console.log('Using fallback data due to:', error.message);
       }
       
       console.log('Using fallback data for properties');
