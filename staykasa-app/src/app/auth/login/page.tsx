@@ -18,9 +18,20 @@ export default function AuthPage() {
   }, []);
 
   const handleAuthSuccess = (user: any) => {
-    // Always redirect to home page after successful login
-    // Users can then choose to access admin panel via the navbar button
-    router.push('/');
+    // Redirect users to appropriate dashboard based on their role
+    switch (user.role) {
+      case 'ADMIN':
+        router.push('/admin');
+        break;
+      case 'HOST':
+        router.push('/host');
+        break;
+      case 'GUEST':
+        router.push('/dashboard');
+        break;
+      default:
+        router.push('/');
+    }
   };
 
   return (
