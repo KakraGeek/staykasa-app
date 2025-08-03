@@ -91,7 +91,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         console.log('🔍 Login successful, setting user:', data.user);
         localStorage.setItem('authToken', data.token);
         setUser(data.user);
-        toast.success('Login successful!');
         return { success: true, user: data.user };
       } else {
         console.log('🔍 Login failed:', data.error);

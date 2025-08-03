@@ -10,9 +10,11 @@ import { Building2, Mail, Lock, ArrowLeft, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function HostLoginPage() {
   const router = useRouter();
+  const { login, user, loading } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
@@ -22,6 +24,30 @@ export default function HostLoginPage() {
   useEffect(() => {
     document.title = 'StayKasa - Host Login';
   }, []);
+
+  // Redirect if already logged in as host
+  useEffect(() => {
+    if (!loading && user && (user.role === 'HOST' || user.role === 'ADMIN')) {
+      router.push('/host');
+    }
+  }, [user, loading, router]);
+
+  // Show loading while checking auth status
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#03c3d7] mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Don't show login form if already logged in
+  if (user && (user.role === 'HOST' || user.role === 'ADMIN')) {
+    return null;
+  }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -36,34 +62,24 @@ export default function HostLoginPage() {
     setIsLoading(true);
 
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
+      const result = await login(formData.email, formData.password);
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Login failed');
-      }
-
-      // Store token
-      localStorage.setItem('authToken', data.token);
-
-      // Check if user is host or admin
-      if (data.user.role === 'HOST' || data.user.role === 'ADMIN') {
-        toast.success('Login successful!');
-        router.push('/host');
-      } else {
-        toast.error('Access denied. Host privileges required.');
-        localStorage.removeItem('authToken');
+      if (result.success && result.user) {
+        // Check if user is host or admin
+        if (result.user.role === 'HOST' || result.user.role === 'ADMIN') {
+          toast.success('Login successful! Redirecting to host dashboard...');
+          // Add a small delay to ensure state is updated
+          setTimeout(() => {
+            router.push('/host');
+          }, 500);
+        } else {
+          toast.error('Access denied. Host privileges required.');
+          // The AuthContext will handle logout
+        }
       }
     } catch (error) {
       console.error('Login error:', error);
-      toast.error(error instanceof Error ? error.message : 'Login failed');
+      toast.error('Login failed. Please try again.');
     } finally {
       setIsLoading(false);
     }

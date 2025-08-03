@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { ArrowLeft, Star, MapPin, Users, Bed, Bath } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import BookingForm from '@/components/ui/booking-form';
+import { EnhancedBookingForm } from '@/components/ui/enhanced-booking-form';
 import { PropertyPlaceholder } from '@/components/ui/property-placeholder';
 import { ReviewsSection } from '@/components/ui/reviews-section';
 import { ContactHost } from '@/components/ui/contact-host';
@@ -235,12 +235,14 @@ export default function PropertyDetailPage({ params }: PropertyDetailPageProps) 
               <div className="mb-8">
                 <h3 className="text-xl font-semibold text-[#133736] mb-4">What this place offers</h3>
                 <div className="grid grid-cols-2 gap-3">
-                  {property.amenities.map((amenity, index) => (
+                  {Array.isArray(property.amenities) ? property.amenities.map((amenity, index) => (
                     <div key={index} className="flex items-center gap-2">
                       <div className="w-2 h-2 bg-primary rounded-full"></div>
                       <span className="text-muted-foreground">{amenity}</span>
                     </div>
-                  ))}
+                  )) : (
+                    <div className="text-muted-foreground">No amenities listed</div>
+                  )}
                 </div>
               </div>
 
@@ -259,7 +261,7 @@ export default function PropertyDetailPage({ params }: PropertyDetailPageProps) 
           {/* Booking Form Sidebar */}
           <div className="lg:col-span-1">
             <div className="sticky top-24 space-y-6">
-              <BookingForm 
+              <EnhancedBookingForm 
                 propertyId={property.id}
                 propertyTitle={property.title}
                 price={property.price}

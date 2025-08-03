@@ -9,97 +9,75 @@ import { PropertyCard } from "@/components/ui/property-card";
 import Link from "next/link";
 import toast from "react-hot-toast";
 
-// Mock properties data
-const availableProperties = [
-  {
-    id: "1",
-    title: "Luxury Villa in Accra",
-    location: "East Legon, Accra",
-    price: "₵2,500/night",
-    guests: 4,
-    bedrooms: 2,
-    baths: 2,
-    rating: 4.9,
-    badge: { text: "Featured", variant: "default" as const },
-    imagePath: "/Images/properties/luxury-villa-accra.webp",
-    placeholderType: "luxury" as const,
-  },
-  {
-    id: "2",
-    title: "Beachfront Apartment",
-    location: "Kokrobite Beach",
-    price: "₵1,800/night",
-    guests: 6,
-    bedrooms: 3,
-    baths: 2,
-    rating: 4.7,
-    badge: { text: "New", variant: "secondary" as const },
-    imagePath: "/Images/properties/beachfront-apartment.webp",
-    placeholderType: "beachfront" as const,
-  },
-  {
-    id: "3",
-    title: "City Center Studio",
-    location: "Osu, Accra",
-    price: "₵1,200/night",
-    guests: 2,
-    bedrooms: 1,
-    baths: 1,
-    rating: 4.8,
-    badge: { text: "Popular", variant: "outline" as const },
-    imagePath: "/Images/properties/city-center-studio.webp",
-    placeholderType: "city" as const,
-  },
-  {
-    id: "4",
-    title: "Mountain View Cottage",
-    location: "Aburi, Eastern Region",
-    price: "₵3,200/night",
-    guests: 8,
-    bedrooms: 4,
-    baths: 3,
-    rating: 4.6,
-    badge: { text: "Premium", variant: "default" as const },
-    imagePath: "/Images/properties/luxury-villa-accra.webp",
-    placeholderType: "luxury" as const,
-  },
-  {
-    id: "5",
-    title: "Cozy Studio Apartment",
-    location: "Cantonments, Accra",
-    price: "₵800/night",
-    guests: 1,
-    bedrooms: 1,
-    baths: 1,
-    rating: 4.5,
-    badge: { text: "Budget", variant: "secondary" as const },
-    imagePath: "/Images/properties/city-center-studio.webp",
-    placeholderType: "city" as const,
-  },
-  {
-    id: "6",
-    title: "Family Beach House",
-    location: "Ada Foah, Greater Accra",
-    price: "₵4,500/night",
-    guests: 10,
-    bedrooms: 5,
-    baths: 4,
-    rating: 4.9,
-    badge: { text: "Family", variant: "outline" as const },
-    imagePath: "/Images/properties/beachfront-apartment.webp",
-    placeholderType: "beachfront" as const,
-  },
-];
+// Define the Property interface
+interface Property {
+  id: string;
+  title: string;
+  location: string;
+  price: number;
+  maxGuests: number;
+  bedrooms: number;
+  baths: number;
+  rating: number;
+  reviewCount: number;
+  isFeatured: boolean;
+  images: Array<{ url: string; alt?: string; isPrimary: boolean }>;
+}
 
 export default function BookPage() {
-  const [filteredProperties, setFilteredProperties] = useState(availableProperties);
+  const [properties, setProperties] = useState<Property[]>([]);
+  const [filteredProperties, setFilteredProperties] = useState<Property[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isSearching, setIsSearching] = useState(false);
-
-
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     document.title = "StayKasa - Book";
+    fetchProperties();
   }, []);
+
+  // Fetch properties from the API
+  const fetchProperties = async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetch('/api/properties');
+      if (!response.ok) {
+        throw new Error('Failed to fetch properties');
+      }
+      const data = await response.json();
+      setProperties(data.properties || []);
+      setFilteredProperties(data.properties || []);
+    } catch (error) {
+      console.error('Error fetching properties:', error);
+      toast.error('Failed to load properties');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Handle search
+  const handleSearch = (searchValue: string) => {
+    setSearchTerm(searchValue);
+    const filtered = properties.filter(property =>
+      property.title.toLowerCase().includes(searchValue.toLowerCase()) ||
+      property.location.toLowerCase().includes(searchValue.toLowerCase())
+    );
+    setFilteredProperties(filtered);
+  };
+
+  // Get badge for property
+  const getPropertyBadge = (property: Property) => {
+    if (property.isFeatured) {
+      return { text: "Featured", variant: "default" as const };
+    }
+    if (property.rating >= 4.8) {
+      return { text: "Popular", variant: "secondary" as const };
+    }
+    if (property.price >= 3000) {
+      return { text: "Premium", variant: "outline" as const };
+    }
+    return undefined;
+  };
 
   return (
     <>
@@ -133,19 +111,12 @@ export default function BookPage() {
                   type="text"
                   placeholder="Search properties..."
                   className="w-full"
-                  onChange={(e) => {
-                    const searchTerm = e.target.value.toLowerCase();
-                    const filtered = availableProperties.filter(property =>
-                      property.title.toLowerCase().includes(searchTerm) ||
-                      property.location.toLowerCase().includes(searchTerm)
-                    );
-                    setFilteredProperties(filtered);
-                    setIsSearching(false);
-                  }}
+                  value={searchTerm}
+                  onChange={(e) => handleSearch(e.target.value)}
                 />
               </div>
               <Button
-                onClick={() => setIsSearching(false)}
+                onClick={() => handleSearch(searchTerm)}
                 className="bg-[#03c3d7] hover:bg-[#00abbc]"
               >
                 <Search className="h-4 w-4 mr-2" />
@@ -158,19 +129,19 @@ export default function BookPage() {
         {/* Available Properties */}
         <div className="mb-8">
           <h2 className="text-3xl font-bold text-[#133736] mb-6 text-center">
-            {isSearching ? 'Searching...' : `Available Properties (${filteredProperties.length})`}
+            {isLoading ? 'Loading...' : `Available Properties (${filteredProperties.length})`}
           </h2>
           
-          {isSearching && (
+          {isLoading && (
             <div className="flex justify-center items-center py-12">
               <div className="flex items-center space-x-2">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#03c3d7]"></div>
-                <span className="text-lg text-[#50757c]">Searching properties...</span>
+                <span className="text-lg text-[#50757c]">Loading properties...</span>
               </div>
             </div>
           )}
           
-          {!isSearching && filteredProperties.length === 0 && (
+          {!isLoading && filteredProperties.length === 0 && (
             <div className="text-center py-12">
               <div className="text-[#50757c] mb-4">
                 <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -179,18 +150,23 @@ export default function BookPage() {
               </div>
               <h3 className="text-lg font-medium text-[#133736] mb-2">No properties found</h3>
               <p className="text-[#50757c] mb-4">
-                Try adjusting your search criteria or browse all properties
+                {searchTerm ? 'Try adjusting your search criteria' : 'No properties available at the moment'}
               </p>
-              <button
-                onClick={() => setFilteredProperties(availableProperties)}
-                className="text-[#03c3d7] hover:text-[#00abbc] font-medium"
-              >
-                View all properties
-              </button>
+              {searchTerm && (
+                <button
+                  onClick={() => {
+                    setSearchTerm("");
+                    setFilteredProperties(properties);
+                  }}
+                  className="text-[#03c3d7] hover:text-[#00abbc] font-medium"
+                >
+                  View all properties
+                </button>
+              )}
             </div>
           )}
           
-          {!isSearching && filteredProperties.length > 0 && (
+          {!isLoading && filteredProperties.length > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {filteredProperties.map((property) => (
                 <PropertyCard
@@ -198,14 +174,14 @@ export default function BookPage() {
                   id={property.id}
                   title={property.title}
                   location={property.location}
-                  price={property.price}
-                  guests={property.guests}
+                  price={`₵${property.price.toLocaleString()}/night`}
+                  guests={property.maxGuests}
                   bedrooms={property.bedrooms}
                   baths={property.baths}
                   rating={property.rating}
-                  badge={property.badge}
-                  imagePath={property.imagePath}
-                  placeholderType={property.placeholderType}
+                  badge={getPropertyBadge(property)}
+                  imagePath={property.images.find(img => img.isPrimary)?.url || property.images[0]?.url}
+                  placeholderType="luxury"
                 />
               ))}
             </div>

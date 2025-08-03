@@ -99,7 +99,7 @@ export async function GET(request: NextRequest) {
         maxGuests: property.maxGuests,
         bedrooms: property.bedrooms,
         baths: property.baths,
-        amenities: property.amenities,
+        amenities: JSON.parse(property.amenities || '[]'),
         isActive: property.isActive,
         isFeatured: property.isFeatured,
         rating: property.rating,

@@ -5,7 +5,7 @@ async function testAllProperties() {
     console.log('🔍 Testing All Properties API...');
     
     // Test the regular properties API (no featured filter)
-    const response = await fetch('http://localhost:3000/api/properties');
+    const response = await fetch('http://localhost:3001/api/properties');
     
     console.log('📡 Response status:', response.status);
     console.log('📡 Response ok:', response.ok);

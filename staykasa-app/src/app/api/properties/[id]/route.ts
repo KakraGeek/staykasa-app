@@ -71,7 +71,7 @@ export async function GET(
         maxGuests: property.maxGuests,
         bedrooms: property.bedrooms,
         baths: property.baths,
-        amenities: property.amenities,
+        amenities: JSON.parse(property.amenities || '[]'),
         rating: Math.round(averageRating * 10) / 10,
         reviewCount: property._count.reviews,
         images: property.images.map(image => ({
