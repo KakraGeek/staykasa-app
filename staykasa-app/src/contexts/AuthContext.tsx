@@ -74,6 +74,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (email: string, password: string): Promise<{ success: boolean; user?: User }> => {
     try {
+      console.log('🔍 Login attempt for:', email);
+      
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: {
@@ -83,13 +85,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
 
       const data = await response.json();
+      console.log('🔍 Login response:', { status: response.status, data });
 
       if (response.ok) {
+        console.log('🔍 Login successful, setting user:', data.user);
         localStorage.setItem('authToken', data.token);
         setUser(data.user);
         toast.success('Login successful!');
         return { success: true, user: data.user };
       } else {
+        console.log('🔍 Login failed:', data.error);
         toast.error(data.error || 'Login failed');
         return { success: false };
       }

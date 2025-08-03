@@ -18,18 +18,26 @@ export default function AuthPage() {
   }, []);
 
   const handleAuthSuccess = (user: any) => {
+    console.log('🔍 handleAuthSuccess called with user:', user);
+    console.log('User role:', user.role);
+    console.log('User email:', user.email);
+    
     // Redirect users to appropriate dashboard based on their role
     switch (user.role) {
       case 'ADMIN':
+        console.log('Redirecting to /admin');
         router.push('/admin');
         break;
       case 'HOST':
+        console.log('Redirecting to /host');
         router.push('/host');
         break;
       case 'GUEST':
+        console.log('Redirecting to /dashboard');
         router.push('/dashboard');
         break;
       default:
+        console.log('Redirecting to / (default)');
         router.push('/');
     }
   };
