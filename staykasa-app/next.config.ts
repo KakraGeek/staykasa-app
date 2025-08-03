@@ -9,9 +9,8 @@ const nextConfig: NextConfig = {
     minimumCacheTTL: 60,
   },
   eslint: {
-    // Temporarily disable ESLint during build for deployment
-    // We'll re-enable this after deployment and fix the issues
-    ignoreDuringBuilds: true,
+    // Enable ESLint during builds to catch code quality issues
+    ignoreDuringBuilds: false,
   },
 };
 

@@ -1,12 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { 
   Search, 
-  Filter, 
   Calendar,
   User,
-  Home,
   CheckCircle,
   XCircle,
   Clock,
@@ -59,11 +57,7 @@ export default function HostBookingsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<'all' | 'PENDING' | 'CONFIRMED' | 'CANCELLED' | 'COMPLETED'>('all');
 
-  useEffect(() => {
-    loadBookings();
-  }, []);
-
-  const loadBookings = async () => {
+  const loadBookings = useCallback(async () => {
     try {
       setLoading(true);
       
@@ -98,7 +92,11 @@ export default function HostBookingsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filterStatus]);
+
+  useEffect(() => {
+    loadBookings();
+  }, [loadBookings]);
 
   const updateBookingStatus = async (bookingId: string, newStatus: string) => {
     try {

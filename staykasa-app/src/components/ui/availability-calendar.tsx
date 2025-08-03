@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Calendar } from '@/components/ui/calendar';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, Calendar as CalendarIcon, Users, X, Check } from 'lucide-react';
-import { format, addMonths, startOfMonth, endOfMonth } from 'date-fns';
+import { addMonths, startOfMonth, endOfMonth } from 'date-fns';
 import type { DateRange } from 'react-day-picker';
 
 interface AvailabilityData {
@@ -27,7 +27,6 @@ interface AvailabilityCalendarProps {
 
 export function AvailabilityCalendar({
   propertyId,
-  maxGuests,
   onDateSelect,
   selectedDates,
   onDateRangeSelect,
@@ -39,7 +38,7 @@ export function AvailabilityCalendar({
   const [error, setError] = useState<string | null>(null);
 
   // Fetch availability data
-  const fetchAvailability = async (startDate: Date, endDate: Date) => {
+  const fetchAvailability = useCallback(async (startDate: Date, endDate: Date) => {
     try {
       setLoading(true);
       setError(null);
@@ -63,14 +62,14 @@ export function AvailabilityCalendar({
     } finally {
       setLoading(false);
     }
-  };
+  }, [propertyId]);
 
   // Load availability when component mounts or month changes
   useEffect(() => {
     const startDate = startOfMonth(currentMonth);
     const endDate = endOfMonth(addMonths(currentMonth, 2)); // Load 3 months of data
     fetchAvailability(startDate, endDate);
-  }, [propertyId, currentMonth]);
+  }, [propertyId, currentMonth, fetchAvailability]);
 
   // Create a map for quick availability lookup
   const availabilityMap = new Map(

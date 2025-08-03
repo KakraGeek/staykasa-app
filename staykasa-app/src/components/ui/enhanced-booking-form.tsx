@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -11,6 +11,7 @@ import { toast } from 'sonner';
 import { AvailabilityCalendar } from './availability-calendar';
 import type { DateRange } from 'react-day-picker';
 import { format, differenceInDays } from 'date-fns';
+import { User as UserType } from '@/types';
 
 interface EnhancedBookingFormProps {
   propertyId: string;
@@ -29,14 +30,13 @@ export function EnhancedBookingForm({
   onSuccess, 
   onCancel 
 }: EnhancedBookingFormProps) {
-  const [isLoading, setIsLoading] = useState(false);
-  const [showCalendar, setShowCalendar] = useState(false);
-  const [selectedDates, setSelectedDates] = useState<DateRange>();
-  const [user, setUser] = useState<any>(null);
+  const [selectedDates, setSelectedDates] = useState<DateRange | undefined>();
   const [formData, setFormData] = useState({
     guests: 1,
     specialRequests: '',
   });
+  const [isLoading, setIsLoading] = useState(false);
+  const [user, setUser] = useState<UserType | null>(null);
 
   // Check user login status
   useEffect(() => {
@@ -74,15 +74,7 @@ export function EnhancedBookingForm({
     checkUserStatus();
   }, []);
 
-  // Debug logging for date selection
-  useEffect(() => {
-    console.log('📅 Date selection changed:', {
-      from: selectedDates?.from,
-      to: selectedDates?.to,
-      nights: calculateNights(),
-      total: calculateTotal()
-    });
-  }, [selectedDates]);
+
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -92,15 +84,25 @@ export function EnhancedBookingForm({
     }));
   };
 
-  const calculateNights = () => {
+  const calculateNights = useCallback(() => {
     if (!selectedDates?.from || !selectedDates?.to) return 0;
     return differenceInDays(selectedDates.to, selectedDates.from);
-  };
+  }, [selectedDates]);
 
-  const calculateTotal = () => {
+  const calculateTotal = useCallback(() => {
     const nights = calculateNights();
     return nights * price;
-  };
+  }, [calculateNights, price]);
+
+  // Debug logging for date selection
+  useEffect(() => {
+    console.log('📅 Date selection changed:', {
+      from: selectedDates?.from,
+      to: selectedDates?.to,
+      nights: calculateNights(),
+      total: calculateTotal()
+    });
+  }, [selectedDates, calculateNights, calculateTotal]);
 
   const validateBooking = () => {
     if (!selectedDates?.from || !selectedDates?.to) {
@@ -378,7 +380,7 @@ export function EnhancedBookingForm({
                   <span className="text-sm font-medium">Ready to Book!</span>
                 </div>
                 <p className="text-xs text-green-600 mt-1">
-                  ✅ All requirements met. Click "Book Now" to confirm your reservation.
+                  ✅ All requirements met. Click &quot;Book Now&quot; to confirm your reservation.
                 </p>
               </div>
             )}

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { ArrowLeft, Star, MapPin, Users, Bed, Bath } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -52,13 +52,7 @@ export default function PropertyDetailPage({ params }: PropertyDetailPageProps) 
     getPropertyId();
   }, [params]);
 
-  useEffect(() => {
-    if (propertyId) {
-      fetchProperty();
-    }
-  }, [propertyId]);
-
-  const fetchProperty = async () => {
+  const fetchProperty = useCallback(async () => {
     try {
       const response = await fetch(`/api/properties/${propertyId}`);
       if (!response.ok) {
@@ -72,7 +66,13 @@ export default function PropertyDetailPage({ params }: PropertyDetailPageProps) 
     } finally {
       setLoading(false);
     }
-  };
+  }, [propertyId]);
+
+  useEffect(() => {
+    if (propertyId) {
+      fetchProperty();
+    }
+  }, [propertyId, fetchProperty]);
 
   const handleBookingSuccess = () => {
     setShowBookingSuccess(true);
@@ -103,7 +103,7 @@ export default function PropertyDetailPage({ params }: PropertyDetailPageProps) 
         <div className="container mx-auto px-4 py-8">
           <div className="text-center">
             <h1 className="text-2xl font-bold text-[#133736] mb-4">Property Not Found</h1>
-            <p className="text-muted-foreground mb-6">The property you're looking for doesn't exist.</p>
+            <p className="text-muted-foreground mb-6">The property you&apos;re looking for doesn&apos;t exist.</p>
             <Link href="/">
               <Button className="bg-primary hover:bg-primary/90">
                 <ArrowLeft className="mr-2 h-4 w-4" />
@@ -289,7 +289,7 @@ export default function PropertyDetailPage({ params }: PropertyDetailPageProps) 
             </div>
             <h3 className="text-xl font-bold text-[#133736] mb-2">Booking Request Sent!</h3>
             <p className="text-muted-foreground mb-6">
-              Your booking request has been sent to the host. You'll receive a confirmation within 24 hours.
+              Your booking request has been sent to the host. You&apos;ll receive a confirmation within 24 hours.
             </p>
             <Button 
               onClick={() => setShowBookingSuccess(false)}

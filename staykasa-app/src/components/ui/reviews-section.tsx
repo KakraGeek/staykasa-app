@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Star, User, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -36,11 +36,7 @@ export function ReviewsSection({ propertyId, propertyTitle, currentRating, revie
   const [submitting, setSubmitting] = useState(false);
   const { user } = useAuth();
 
-  useEffect(() => {
-    loadReviews();
-  }, [propertyId]);
-
-  const loadReviews = async () => {
+  const loadReviews = useCallback(async () => {
     try {
       const response = await fetch(`/api/reviews?propertyId=${propertyId}`);
       if (response.ok) {
@@ -52,7 +48,11 @@ export function ReviewsSection({ propertyId, propertyTitle, currentRating, revie
     } finally {
       setLoading(false);
     }
-  };
+  }, [propertyId]);
+
+  useEffect(() => {
+    loadReviews();
+  }, [loadReviews]);
 
   const handleSubmitReview = async () => {
     if (!user) {
@@ -91,7 +91,7 @@ export function ReviewsSection({ propertyId, propertyTitle, currentRating, revie
         const error = await response.json();
         toast.error(error.error || 'Failed to submit review');
       }
-    } catch (error) {
+    } catch {
       toast.error('Failed to submit review');
     } finally {
       setSubmitting(false);

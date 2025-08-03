@@ -1,13 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { 
   Plus, 
   Search, 
-  Filter, 
   Edit, 
   Eye,
-  MoreHorizontal,
   Home,
   Star,
   Calendar,
@@ -18,14 +16,9 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuTrigger 
-} from '@/components/ui/dropdown-menu';
+
 import Link from 'next/link';
 import Image from 'next/image';
 import toast from 'react-hot-toast';
@@ -50,8 +43,8 @@ interface Property {
   createdAt: string;
   updatedAt: string;
   images: { url: string; isPrimary: boolean; order: number }[];
-  bookings: any[];
-  reviews: any[];
+  bookings: { id: string; checkIn: string; checkOut: string; status: string }[];
+  reviews: { id: string; rating: number; comment: string; createdAt: string }[];
   _count: {
     bookings: number;
     reviews: number;
@@ -65,11 +58,7 @@ export default function HostPropertiesPage() {
   const [filterStatus, setFilterStatus] = useState<'all' | 'active' | 'inactive'>('all');
   const [updatingProperty, setUpdatingProperty] = useState<string | null>(null);
 
-  useEffect(() => {
-    loadProperties();
-  }, []);
-
-  const loadProperties = async () => {
+  const loadProperties = useCallback(async () => {
     try {
       setLoading(true);
       
@@ -105,7 +94,11 @@ export default function HostPropertiesPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [searchTerm, filterStatus]);
+
+  useEffect(() => {
+    loadProperties();
+  }, [loadProperties]);
 
   const togglePropertyStatus = async (property: Property) => {
     try {

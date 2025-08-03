@@ -1,10 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Bell, Check, MessageCircle, Calendar, Star } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { Bell, MessageCircle, Calendar, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
-import toast from 'react-hot-toast';
 
 interface Notification {
   id: string;
@@ -13,7 +12,7 @@ interface Notification {
   message: string;
   isRead: boolean;
   createdAt: string;
-  metadata?: any;
+  metadata?: { [key: string]: unknown };
 }
 
 export function NotificationsDropdown() {
@@ -24,13 +23,7 @@ export function NotificationsDropdown() {
 
   const unreadCount = notifications.filter(n => !n.isRead).length;
 
-  useEffect(() => {
-    if (user) {
-      loadNotifications();
-    }
-  }, [user]);
-
-  const loadNotifications = async () => {
+  const loadNotifications = useCallback(async () => {
     if (!user) return;
     
     setLoading(true);
@@ -51,7 +44,13 @@ export function NotificationsDropdown() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
+
+  useEffect(() => {
+    if (user) {
+      loadNotifications();
+    }
+  }, [user, loadNotifications]);
 
   const markAsRead = async (notificationIds: string[]) => {
     if (!user) return;

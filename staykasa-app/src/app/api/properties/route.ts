@@ -1,28 +1,38 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { getCurrentUser, extractTokenFromHeader } from '@/lib/auth';
+import { Prisma } from '@prisma/client';
 
-// GET /api/properties - Fetch all properties
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '10');
-    const city = searchParams.get('city');
+    const featured = searchParams.get('featured');
+    const search = searchParams.get('search');
+    const location = searchParams.get('location');
     const minPrice = searchParams.get('minPrice');
     const maxPrice = searchParams.get('maxPrice');
     const guests = searchParams.get('guests');
-    const featured = searchParams.get('featured');
-
-    const skip = (page - 1) * limit;
+    const page = parseInt(searchParams.get('page') || '1');
+    const limit = parseInt(searchParams.get('limit') || '10');
+    const offset = (page - 1) * limit;
 
     // Build where clause
-    const where: any = {
-      isActive: true,
-    };
+    const where: Prisma.PropertyWhereInput = { isActive: true };
+    
+    if (featured === 'true') {
+      where.isFeatured = true;
+    }
 
-    if (city) {
-      where.city = { contains: city, mode: 'insensitive' };
+    if (search) {
+      where.OR = [
+        { title: { contains: search, mode: 'insensitive' } },
+        { description: { contains: search, mode: 'insensitive' } },
+        { location: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+
+    if (location) {
+      where.location = { contains: location, mode: 'insensitive' };
     }
 
     if (minPrice || maxPrice) {
@@ -35,10 +45,6 @@ export async function GET(request: NextRequest) {
       where.maxGuests = { gte: parseInt(guests) };
     }
 
-    if (featured === 'true') {
-      where.isFeatured = true;
-    }
-
     // Fetch properties with owner info
     const properties = await prisma.property.findMany({
       where,
@@ -48,11 +54,11 @@ export async function GET(request: NextRequest) {
             id: true,
             firstName: true,
             lastName: true,
-            isVerified: true,
           },
         },
         images: {
-          orderBy: { order: 'asc' },
+          where: { isPrimary: true },
+          take: 1,
         },
         _count: {
           select: {
@@ -60,11 +66,8 @@ export async function GET(request: NextRequest) {
           },
         },
       },
-      orderBy: [
-        { isFeatured: 'desc' },
-        { createdAt: 'desc' },
-      ],
-      skip,
+      orderBy: featured === 'true' ? { rating: 'desc' } : { createdAt: 'desc' },
+      skip: offset,
       take: limit,
     });
 
@@ -77,23 +80,13 @@ export async function GET(request: NextRequest) {
         page,
         limit,
         total,
-        pages: Math.ceil(total / limit),
+        totalPages: Math.ceil(total / limit),
       },
     });
-
   } catch (error) {
     console.error('Error fetching properties:', error);
-    
-    // Check if it's a database connection error
-    if (error && typeof error === 'object' && 'code' in error && error.code === 'P5010') {
-      return NextResponse.json(
-        { error: 'Database connection failed' },
-        { status: 503 }
-      );
-    }
-    
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Failed to fetch properties' },
       { status: 500 }
     );
   }

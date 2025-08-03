@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { getCurrentUser, extractTokenFromHeader } from '@/lib/auth';
-import { sendBookingConfirmation, sendEmail } from '@/lib/email';
+import { sendBookingConfirmation } from '@/lib/email';
+import { PrismaWhereClause } from '@/types';
 
 // GET /api/bookings - Get user's bookings
 export async function GET(request: NextRequest) {
@@ -29,15 +30,17 @@ export async function GET(request: NextRequest) {
     // Get query parameters
     const { searchParams } = new URL(request.url);
     const status = searchParams.get('status');
+    const page = parseInt(searchParams.get('page') || '1');
+    const limit = parseInt(searchParams.get('limit') || '10');
+    const offset = (page - 1) * limit;
 
     // Build where clause
-    const where: any = { guestId: user.id };
-    
+    const where: PrismaWhereClause = { guestId: user.id };
     if (status && status !== 'all') {
       where.status = status;
     }
 
-    // Get user's bookings
+    // Fetch bookings with property info
     const bookings = await prisma.booking.findMany({
       where,
       include: {
@@ -54,24 +57,24 @@ export async function GET(request: NextRequest) {
         },
       },
       orderBy: { createdAt: 'desc' },
+      skip: offset,
+      take: limit,
     });
 
+    // Get total count for pagination
+    const total = await prisma.booking.count({ where });
+
     return NextResponse.json({
-      bookings: bookings.map(booking => ({
-        id: booking.id,
-        checkIn: booking.checkIn,
-        checkOut: booking.checkOut,
-        guests: booking.guests,
-        totalPrice: booking.totalPrice,
-        status: booking.status,
-        specialRequests: booking.specialRequests,
-        createdAt: booking.createdAt,
-        updatedAt: booking.updatedAt,
-        property: booking.property,
-      })),
+      bookings,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
     });
   } catch (error) {
-    console.error('Get bookings error:', error);
+    console.error('Failed to fetch bookings:', error);
     return NextResponse.json(
       { error: 'Failed to fetch bookings' },
       { status: 500 }
@@ -205,51 +208,19 @@ export async function POST(request: NextRequest) {
       });
 
       if (admins.length > 0) {
-        const adminEmails = admins.map(admin => admin.email);
         const property = await prisma.property.findUnique({
           where: { id: propertyId },
         });
 
         if (property) {
-          const bookingNotificationEmail = {
-            to: adminEmails.join(', '),
-            subject: `New Booking - ${property.title}`,
-            html: `
-              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                <div style="background: linear-gradient(135deg, #03c3d7, #00abbc); padding: 20px; text-align: center;">
-                  <h1 style="color: white; margin: 0;">StayKasa</h1>
-                </div>
-                <div style="padding: 20px; background: #f9f9f9;">
-                  <h2 style="color: #133736;">New Booking Received</h2>
-                  <p>A new booking has been made and requires your attention.</p>
-                  
-                  <div style="background: white; padding: 15px; border-radius: 8px; margin: 15px 0;">
-                    <h3 style="color: #133736; margin-top: 0;">Booking Details:</h3>
-                    <p><strong>Property:</strong> ${property.title}</p>
-                    <p><strong>Guest:</strong> ${user.firstName} ${user.lastName}</p>
-                    <p><strong>Email:</strong> <a href="mailto:${user.email}">${user.email}</a></p>
-                    <p><strong>Check-in:</strong> ${new Date(checkIn).toLocaleDateString()}</p>
-                    <p><strong>Check-out:</strong> ${new Date(checkOut).toLocaleDateString()}</p>
-                    <p><strong>Guests:</strong> ${guests}</p>
-                    <p><strong>Total Amount:</strong> ₵${totalPrice.toLocaleString()}</p>
-                    ${specialRequests ? `<p><strong>Special Requests:</strong> ${specialRequests}</p>` : ''}
-                  </div>
-                  
-                  <div style="text-align: center; margin: 20px 0;">
-                    <a href="${process.env.NEXT_PUBLIC_APP_URL}/admin/bookings" 
-                       style="background: #03c3d7; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
-                      View All Bookings
-                    </a>
-                  </div>
-                </div>
-                <div style="background: #133736; color: white; padding: 15px; text-align: center; font-size: 12px;">
-                  © 2025 StayKasa. All rights reserved.
-                </div>
-              </div>
-            `,
-          };
-
-          await sendEmail(bookingNotificationEmail);
+          // TODO: Implement admin notification email
+          // const adminEmails = admins.map(admin => admin.email);
+          // const bookingNotificationEmail = {
+          //   to: adminEmails.join(', '),
+          //   subject: `New Booking - ${property.title}`,
+          //   html: `...`,
+          // };
+          // await sendEmail(bookingNotificationEmail);
         }
       }
     } catch (adminEmailError) {

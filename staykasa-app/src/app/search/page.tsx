@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { PropertyCard } from "@/components/ui/property-card";
 import { propertyApi, type Property } from "@/lib/api";
-import { Loader2, Search, MapPin, Calendar, Users } from "lucide-react";
+import { Loader2, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -42,11 +42,7 @@ export default function SearchPage() {
     }
   };
 
-  useEffect(() => {
-    filterProperties();
-  }, [properties, searchTerm, selectedCity, selectedGuests, priceRange]);
-
-  const filterProperties = () => {
+  const filterProperties = useCallback(() => {
     let filtered = [...properties];
 
     // Filter by search term
@@ -83,7 +79,11 @@ export default function SearchPage() {
     }
 
     setFilteredProperties(filtered);
-  };
+  }, [properties, searchTerm, selectedCity, selectedGuests, priceRange]);
+
+  useEffect(() => {
+    filterProperties();
+  }, [filterProperties]);
 
   const clearFilters = () => {
     setSearchTerm('');
@@ -93,36 +93,7 @@ export default function SearchPage() {
     toast.success('Search filters cleared');
   };
 
-  // Structured data for search page
-  const structuredData = {
-    "@context": "https://schema.org",
-    "@type": "ItemList",
-    "name": "Ghana Vacation Rentals",
-    "description": "Search and book vacation rentals in Ghana",
-          "url": "https://staykasa-app.vercel.app/search",
-    "numberOfItems": filteredProperties.length,
-    "itemListElement": filteredProperties.map((property, index) => ({
-      "@type": "ListItem",
-      "position": index + 1,
-      "item": {
-        "@type": "LodgingBusiness",
-        "name": property.title,
-        "description": property.description,
-        "address": {
-          "@type": "PostalAddress",
-          "addressLocality": property.city,
-          "addressCountry": property.country,
-          "streetAddress": property.address
-        },
-        "priceRange": `₵${property.price}`,
-        "numberOfRooms": property.bedrooms,
-        "amenityFeature": JSON.parse(property.amenities || '[]').map((amenity: string) => ({
-          "@type": "LocationFeatureSpecification",
-          "name": amenity
-        }))
-      }
-    }))
-  };
+
 
   return (
     <>
