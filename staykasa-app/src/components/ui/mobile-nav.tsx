@@ -29,8 +29,8 @@ export function MobileNav() {
           <Menu className="h-6 w-6 text-primary" />
         </Button>
       </SheetTrigger>
-      <SheetContent side="right" className="w-[85vw] max-w-[320px] sm:max-w-[380px] bg-background border-l border-primary/20 h-full overflow-y-auto">
-        <SheetHeader className="text-left pb-6 border-b border-primary/10">
+      <SheetContent side="right" className="w-[85vw] max-w-[320px] sm:max-w-[380px] bg-background border-l border-primary/20 h-full overflow-y-auto flex flex-col">
+        <SheetHeader className="text-left pb-6 border-b border-primary/10 flex-shrink-0">
           <div className="flex items-center space-x-3">
             <Image
               src="/Images/logo.webp"
@@ -44,7 +44,8 @@ export function MobileNav() {
           <p className="text-sm text-muted-foreground mt-2">Your trusted short-stay platform</p>
         </SheetHeader>
         
-        <div className="flex flex-col space-y-1 mt-4 mx-2">
+        {/* Main Navigation Items */}
+        <div className="flex flex-col space-y-1 mt-4 mx-2 flex-shrink-0">
           {menuItems.map((item) => (
             item.href.startsWith('/') ? (
               <Link 
@@ -74,13 +75,26 @@ export function MobileNav() {
           ))}
         </div>
 
-        <div className="mt-4 pt-3 border-t border-primary/10 space-y-2 bg-white/30 p-3 rounded-lg mx-2">
+        {/* Book Now Button - Prominent Position */}
+        <div className="mt-4 mx-2 flex-shrink-0 bg-yellow-100 p-2 rounded-lg">
+          <Link href="/book" className="w-full block">
+            <Button 
+              className="w-full bg-[#03c3d7] hover:bg-[#00abbc] shadow-lg hover:shadow-xl transition-all duration-300 h-12 text-base font-semibold text-white border-0"
+              onClick={() => setIsOpen(false)}
+            >
+              <Calendar className="h-4 w-4 mr-2" />
+              Book Now
+            </Button>
+          </Link>
+        </div>
+
+        {/* Authentication Section */}
+        <div className="mt-4 pt-3 border-t border-primary/10 space-y-2 bg-white/30 p-3 rounded-lg mx-2 flex-shrink-0">
           <div className="text-sm text-muted-foreground mb-4">
-            <p className="font-medium text-foreground mb-1">Quick Actions</p>
-            <p>Access your account or start booking</p>
+            <p className="font-medium text-foreground mb-1">Account</p>
+            <p>Manage your account and bookings</p>
           </div>
           
-          {/* Authentication Section */}
           {user ? (
             <div className="space-y-2">
               <div className="flex items-center space-x-2 p-2 bg-primary/5 rounded-lg">
@@ -176,22 +190,13 @@ export function MobileNav() {
               Host Login
             </Button>
           </Link>
-          
-          <Link href="/book" className="w-full">
-            <Button 
-              className="w-full bg-primary hover:bg-primary/90 shadow-sm hover:shadow-md transition-all duration-300 h-8 text-sm"
-              onClick={() => setIsOpen(false)}
-            >
-              <Calendar className="h-3 w-3 mr-2" />
-              Book Now
-            </Button>
-          </Link>
         </div>
 
-        <div className="mt-auto pt-3 border-t border-primary/10 bg-white/30 p-2 rounded-lg mx-2 mb-2">
+        {/* Footer */}
+        <div className="mt-auto pt-3 border-t border-primary/10 bg-white/30 p-2 rounded-lg mx-2 mb-2 flex-shrink-0">
           <div className="text-xs text-muted-foreground text-center">
             <p>© 2024 StayKasa</p>
-            <p className="mt-1">Ghana's trusted short-stay platform</p>
+            <p className="mt-1">Ghana&apos;s trusted short-stay platform</p>
           </div>
         </div>
       </SheetContent>
